@@ -1,42 +1,43 @@
 #include "Board.h"
 #include <cstdlib>
 #include <ctime>
-
+#include <queue>
+#include <utility>
 void SetCursorPosition(int x, int y) {
     COORD coord;
     coord.X = x;
     coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
-
+//=========================================
 void HideCursor() {
     CONSOLE_CURSOR_INFO cursorInfo;
     GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
     cursorInfo.bVisible = FALSE;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
-
+//=========================================
 Board::Node::Node(int x, int y, int g, int h, Node* parent)
     : x(x), y(y), g(g), h(h), parent(parent) {
     f = g + h;
 }
-
+//=========================================
 bool Board::Node::operator>(const Node& other) const {
     return f > other.f;
 }
-
+//=========================================
 int Board::CalculateH(int x1, int y1, int x2, int y2) {
     return abs(x1 - x2) + abs(y1 - y2);
 }
-
+//=========================================
 bool Board::IsValid(int x, int y) {
-    if (x < 0 || x >= size || y < 0 || y >= size)
-        return false;
-    if (tile[y][x] == Wall)
-        return false;
-    return true;
+	if (x < 0 || x >= size || y < 0 || y >= size)//범위 벗어남
+		return false;//false 반환
+	if (tile[y][x] == Wall)//벽임
+		return false;// false 반환
+	return true;// 유효한 위치
 }
-
+//=========================================
 void Board::GenerateBinaryTree(bool showProcess) {
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -77,7 +78,7 @@ void Board::GenerateBinaryTree(bool showProcess) {
         }
     }
 }
-
+//=========================================
 void Board::GenerateGrowingBinaryTree(bool showProcess) {
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -140,7 +141,7 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
         }
     }
 }
-
+//=========================================
 void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
     if (boardSize % 2 == 0)
         return;
@@ -158,7 +159,7 @@ void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
         break;
     }
 }
-
+//=========================================
 void Board::Render() {
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -169,16 +170,100 @@ void Board::Render() {
             else if (tile[y][x] == Wall)
                 cout << "\033[47m  \033[0m";
             else if (tile[y][x] == Path)
-                cout << "\033[44m  \033[0m";
+				cout << "\033[44m  \033[0m";// Path는 파란색으로 표시
+			else if (tile[y][x] == Loot)
+				cout << "\033[43m  \033[0m";// Loot는 노란색으로 표시
             else
                 cout << "\033[40m  \033[0m";
         }
         cout << endl;
     }
 }
-
+//=========================================
 void Board::BasicMazeSearch(int sX, int sY, int gX, int gY) {
-    //난 못하겠음 나는 바보야 나는 빡통이야 나는 깊이 우선 탐색 마저도 못해 지피티 에몽이 다해줘 ㅠㅠ
+    bool** visited = new bool* [size];//Initialize에서 사이즈 정함 ㅇㅇ
+    pair<int, int>** parent = new pair<int, int>* [size];
+
+    for (int i = 0; i < size; i++) {
+        visited[i] = new bool[size]();  // () 붙이면 false로 초기화
+        parent[i] = new pair<int, int>[size];
+        for (int j = 0; j < size; j++) {
+            parent[i][j] = { -1, -1 };
+        }
+    }
+
+    queue<pair<int, int>> q;//큐 아직 이해 못함 //BFS에 쓰이는 queue(선입선출). pair<int,int>에는 (x, y)를 담습니다.
+
+    q.push({ sX, sY });//시작점에 큐 넣기
+    visited[sY][sX] = true;//방문 표시
+
+    // 4방향 이동
+    int dx[] = { 0, 0, -1, 1 };
+    int dy[] = { -1, 1, 0, 0 };
+
+    // 메인 알고리즘
+	bool found = false;//목적지 도달 여부 초기화
+	while (!q.empty() && !found) {//큐가 비어있지 않고 목적지에 도달하지 않았으면 계속 반복
+		int curX = q.front().first;//큐에서 현재 위치 꺼내기
+        int curY = q.front().second;
+		q.pop();//큐에서 현재 위치 꺼내기
+
+        // 목적지에 도달했는지 확인
+        if (curX == gX && curY == gY) {
+            found = true;
+            break;
+        }
+
+        // 4방향 탐색
+        for (int i = 0; i < 4; i++) {
+			int newX = curX + dx[i];//현재 위치에서 4방향으로 이동한 위치 계산
+            int newY = curY + dy[i];
+
+            // 유효한 위치이고 방문하지 않았으며 벽이 아닌 경우
+			if (IsValid(newX, newY) && !visited[newY][newX]) {//만약 유효한 위치이고 방문하지 않았으며 벽이 아닌 경우
+				visited[newY][newX] = true;//방문 표시
+				parent[newY][newX] = { curX, curY };//부모 노드 기록
+				q.push({ newX, newY });//큐에 새 위치 추가
+				tile[newY][newX] = Path;//경로 표시
+                SetCursorPosition(0, 0);
+                Render();
+            }
+        }
+    }
+	//그니깐 벽 검사하고 벽아님? 바로 let's go 하고 큐에 넣고 방문표시하고 부모노드 기록하고 경로표시
+    // 경로가 발견된 경우 역추적하여 경로 표시
+    if (found) {
+		int curX = gX;//현재 위치를 목표 지점으로 설정
+        int curY = gY;
+
+        // 시작점까지 역추적
+		while (!(curX == sX && curY == sY)) {//현재 위치가 시작점이 아닐 때까지 반복
+			if (!(curX == gX && curY == gY) && !(curX == sX && curY == sY)) {//현재 위치가 시작점이나 목표점이 아닐 때
+				tile[curY][curX] = Loot;//경로 표시
+            }
+            //부모 노드 좌표 가져오기
+			int prevX = parent[curY][curX].first;//이전 좌표에 부모 노드 좌표 저장
+			int prevY = parent[curY][curX].second;
+            curX = prevX;
+            curY = prevY;
+            Sleep(1);
+            SetCursorPosition(0, 0);
+            Render();
+        }
+
+        cout << "\n경로를 찾았습니다!" << endl;
+    }
+    else {
+        cout << "\n경로를 찾을 수 없습니다!" << endl;
+    }
+
+    //메모리 해제
+    for (int i = 0; i < size; i++) {
+        delete[] visited[i];
+        delete[] parent[i];
+    }
+    delete[] visited;
+    delete[] parent;
 }
 
 void Board::Algorithm(int choice) {

@@ -12,7 +12,8 @@ public:
     enum TileType {
         Empty,
         Wall,
-        Path
+        Path,
+        Loot
     };
 private:
     TileType tile[50][50];

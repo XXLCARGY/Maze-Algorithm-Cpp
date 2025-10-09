@@ -1,18 +1,18 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\",
+  "WorkspaceRootPath": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|solutionrelative:Board.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|solutionrelative:Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|solutionrelative:Board.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{AB739898-32CB-4795-97FE-E1E110584F85}|MazeAlgorithm.vcxproj|solutionrelative:Board.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,43 +22,43 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Board.h",
-              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.h",
+              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.h",
               "RelativeDocumentMoniker": "Board.h",
-              "ToolTip": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.h",
+              "ToolTip": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.h",
               "RelativeToolTip": "Board.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-10-09T08:03:56.079Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Board.cpp",
-              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.cpp",
+              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.cpp",
               "RelativeDocumentMoniker": "Board.cpp",
-              "ToolTip": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Board.cpp",
+              "ToolTip": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Board.cpp",
               "RelativeToolTip": "Board.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPoAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAMEAAAAAAAAAAADgv/UAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-10-09T08:03:37.663Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Main.cpp",
-              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Main.cpp",
+              "DocumentMoniker": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Main.cpp",
               "RelativeDocumentMoniker": "Main.cpp",
-              "ToolTip": "C:\\Users\\PC\\Desktop\\MazeAlgorithm\\Main.cpp",
+              "ToolTip": "C:\\Users\\PC\\Desktop\\Maze-Algorithm-Cpp\\MazeAlgorithm\\Main.cpp",
               "RelativeToolTip": "Main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAACkAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-10-09T08:03:25.101Z",
               "EditorCaption": ""
