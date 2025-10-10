@@ -34,6 +34,7 @@ int main() {
     board.Initialize(mapsize, choice, true);
     SetCursorPosition(0, 0);
     board.Render();
+    //미로 탐색 함수가 추가되는 대로 그냥 여기다가 선택하게 추가하기
     board.BasicMazeSearch(1, 1, mapsize-2, mapsize-2);
 	cout << "\n1. Restart\n0. Exit\n";
     cin >> choice;

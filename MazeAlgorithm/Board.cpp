@@ -7,7 +7,7 @@ void SetCursorPosition(int x, int y) {
     COORD coord;
     coord.X = x;
     coord.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);//이게이게뭐에요? 이게뭐에요?
 }
 //=========================================
 void HideCursor() {
@@ -39,6 +39,7 @@ bool Board::IsValid(int x, int y) {
 }
 //=========================================
 void Board::GenerateBinaryTree(bool showProcess) {
+    //맵 초기화 x y가 짝수일때 wall로 지정 else 빈칸
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
             if (x % 2 == 0 || y % 2 == 0)
@@ -52,20 +53,20 @@ void Board::GenerateBinaryTree(bool showProcess) {
         Render();
     }
     srand(unsigned(time(NULL)));
-    for (int y = 0; y < size; y++) {
+    for (int y = 0; y < size; y++) {// 모든 칸을 소모할때까지
         for (int x = 0; x < size; x++) {
-            if (x % 2 == 0 || y % 2 == 0)
+            if (x % 2 == 0 || y % 2 == 0)//2배 때리는건죽음임
                 continue;
-            bool canGoRight = (x < size - 2);
+            bool canGoRight = (x < size - 2);//벽인지 검사
             bool canGoDown = (y < size - 2);
             if (!canGoRight && !canGoDown)
                 continue;
             else if (!canGoRight)
-                tile[y + 1][x] = Empty;
+                tile[y + 1][x] = Empty;//비워버려
             else if (!canGoDown)
-                tile[y][x + 1] = Empty;
+                tile[y][x + 1] = Empty;//비워버려
             else {
-                if (rand() % 2 == 0)
+                if (rand() % 2 == 0)//둘다 가능하면 랜덤
                     tile[y][x + 1] = Empty;
                 else
                     tile[y + 1][x] = Empty;
@@ -93,17 +94,17 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
 
     srand(unsigned(time(NULL)));
 
-    bool visited[50][50] = { false };
-    int startX = 1, startY = 1;
-    tile[startY][startX] = Empty;
-    visited[startY][startX] = true;
-    vector<pair<int, int>> activeList;
-    activeList.push_back({ startX, startY });
-
+    bool visited[50][50] = { false };//레전드 정상화
+    int startX = 1, startY = 1;//생성 시작지점
+    tile[startY][startX] = Empty;//시작을 비우고
+    visited[startY][startX] = true;// 시작에 방문 표시를 하며
+    vector<pair<int, int>> activeList;//2차원 좌표 활성화 리스트에 넣음 동적 할당임
+    activeList.push_back({ startX, startY });//넣고
+    //4방향 백터
     int dx[] = { 0, 0, -2, 2 };
     int dy[] = { -2, 2, 0, 0 };
 
-    while (!activeList.empty()) {
+    while (!activeList.empty()) {//내가 뭘쳐만든거지?
         int idx = rand() % activeList.size();
         int curX = activeList[idx].first;
         int curY = activeList[idx].second;
@@ -119,7 +120,7 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
             }
         }
 
-        if (!validDirections.empty()) {
+        if (!validDirections.empty()) {//
             int dir = validDirections[rand() % validDirections.size()];
             int newX = curX + dx[dir];
             int newY = curY + dy[dir];
@@ -137,7 +138,7 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
             }
         }
         else {
-            activeList.erase(activeList.begin() + idx);
+            activeList.erase(activeList.begin() + idx);//리스트 비우기
         }
     }
 }
@@ -156,6 +157,9 @@ void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
         break;
     case 2:
         GenerateGrowingBinaryTree(showProcess);
+        break;
+    case 3:
+        //"Hunt and Kill" Algorithm 구현하기
         break;
     }
 }
@@ -320,7 +324,7 @@ void Board::Algorithm(int choice) {
         cout << "[ 특징 ]" << endl << endl;
 
         cout << "장점:" << endl;
-        cout << "  * 균형잡힌 미로 생성 (편향 없음)" << endl;
+        cout << "  * 균형잡힌 미로 생성 (편향이 적음)" << endl;
         cout << "  * 다양한 패턴의 미로 생성 가능" << endl;
         cout << "  * Prim's Algorithm의 변형으로 효율적" << endl;
         cout << "  * 막다른 골목이 적절히 분산됨" << endl << endl;
@@ -329,7 +333,7 @@ void Board::Algorithm(int choice) {
         cout << "  * Binary Tree보다 구현이 복잡함" << endl;
         cout << "  * 활성 셀 리스트 관리를 위한 추가 메모리 필요" << endl;
         cout << "  * 생성 속도가 상대적으로 느림 (O(n log n))" << endl;
-        cout << "  * 랜덤성으로 인해 예측 불가능" << endl;
+        cout << "  * 단순한 생성 과정으로써 구조가 단순함" << endl;
         Sleep(6000);
         break;
     }
