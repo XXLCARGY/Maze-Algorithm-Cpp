@@ -10,16 +10,18 @@ int main() {
     cout << "====================================\n\n";
     cout << "1. Binary Tree Algorithm\n";
     cout << "2. Growing Binary Tree Algorithm\n";
+    cout << "3. Recursive Backtracking Algorithm\n";
+    cout << "4. Hunt and Kill Algorithm\n";
     cout << "0. Exit\n\n";
-    cout << "Select algorithm (0-2): ";
+    cout << "Select algorithm (0-4): ";
     cin >> choice;
-
+    
     if (choice == 0) {
         cout << "Goodbye!\n";
         return 0;
     }
 
-    if (choice < 1 || choice > 2) {
+    if (choice < 1 || choice > 4) {
         cout << "Invalid choice!\n";
         return 0;
     }
@@ -35,7 +37,7 @@ int main() {
     SetCursorPosition(0, 0);
     board.Render();
     //미로 탐색 함수가 추가되는 대로 그냥 여기다가 선택하게 추가하기
-    board.BasicMazeSearch(1, 1, mapsize-2, mapsize-2);
+    board.Breadthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
 	cout << "\n1. Restart\n0. Exit\n";
     cin >> choice;
     switch (choice)

@@ -11,20 +11,22 @@ class Board {
 public:
     enum TileType {
         Empty,
+        Back,
         Wall,
         Path,
+        Scan,
         Loot
     };
 private:
     TileType tile[50][50];
-    int size;
-    int startX, startY;
-    int goalX, goalY;
+    int m_size;
+    int m_startX, m_startY;
+    int m_goalX, m_goalY;
 
     struct Node {
-        int x, y;
-        int g, h, f;
-        Node* parent;
+        int m_x, m_y;
+        int m_g, m_h, m_f;
+        Node* m_parent;
         Node(int x, int y, int g, int h, Node* parent = nullptr);
         bool operator>(const Node& other) const;
     };
@@ -33,10 +35,12 @@ private:
     bool IsValid(int x, int y);
     void GenerateBinaryTree(bool showProcess);
     void GenerateGrowingBinaryTree(bool showProcess);
+    void GenerateRecursiveBacktracking(bool showProcess);
+    void GenerateHuntandKill(bool showProcess);
 
 public:
     void Initialize(int boardSize, int algorithm, bool showProcess = false);
     void Render();
-    void BasicMazeSearch(int sX, int sY, int gX, int gY);
+    void Breadthfirstsearch(int sX, int sY, int gX, int gY);
     void Algorithm(int choice);
 };

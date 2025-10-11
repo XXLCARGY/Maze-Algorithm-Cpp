@@ -3,6 +3,9 @@
 #include <ctime>
 #include <queue>
 #include <utility>
+#include <assert.h>
+
+//맴버 변수랑 로컬 변수 구분좀 되게 해두기
 void SetCursorPosition(int x, int y) {
     COORD coord;
     coord.X = x;
@@ -18,12 +21,12 @@ void HideCursor() {
 }
 //=========================================
 Board::Node::Node(int x, int y, int g, int h, Node* parent)
-    : x(x), y(y), g(g), h(h), parent(parent) {
-    f = g + h;
+    : m_x(x), m_y(y), m_g(g), m_h(h), m_parent(parent) {
+    m_f = g + h;
 }
 //=========================================
 bool Board::Node::operator>(const Node& other) const {
-    return f > other.f;
+    return m_f > other.m_f;
 }
 //=========================================
 int Board::CalculateH(int x1, int y1, int x2, int y2) {
@@ -31,7 +34,7 @@ int Board::CalculateH(int x1, int y1, int x2, int y2) {
 }
 //=========================================
 bool Board::IsValid(int x, int y) {
-	if (x < 0 || x >= size || y < 0 || y >= size)//범위 벗어남
+	if (x < 0 || x >= m_size || y < 0 || y >= m_size)//범위 벗어남
 		return false;//false 반환
 	if (tile[y][x] == Wall)//벽임
 		return false;// false 반환
@@ -40,8 +43,8 @@ bool Board::IsValid(int x, int y) {
 //=========================================
 void Board::GenerateBinaryTree(bool showProcess) {
     //맵 초기화 x y가 짝수일때 wall로 지정 else 빈칸
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
+    for (int y = 0; y < m_size; y++) {
+        for (int x = 0; x < m_size; x++) {
             if (x % 2 == 0 || y % 2 == 0)
                 tile[y][x] = Wall;
             else
@@ -53,12 +56,12 @@ void Board::GenerateBinaryTree(bool showProcess) {
         Render();
     }
     srand(unsigned(time(NULL)));
-    for (int y = 0; y < size; y++) {// 모든 칸을 소모할때까지
-        for (int x = 0; x < size; x++) {
+    for (int y = 0; y < m_size; y++) {// 모든 칸을 소모할때까지
+        for (int x = 0; x < m_size; x++) {
             if (x % 2 == 0 || y % 2 == 0)//2배 때리는건죽음임
                 continue;
-            bool canGoRight = (x < size - 2);//벽인지 검사
-            bool canGoDown = (y < size - 2);
+            bool canGoRight = (x < m_size - 2);//벽인지 검사
+            bool canGoDown = (y < m_size - 2);
             if (!canGoRight && !canGoDown)
                 continue;
             else if (!canGoRight)
@@ -81,8 +84,8 @@ void Board::GenerateBinaryTree(bool showProcess) {
 }
 //=========================================
 void Board::GenerateGrowingBinaryTree(bool showProcess) {
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
+    for (int y = 0; y < m_size; y++) {
+        for (int x = 0; x < m_size; x++) {
             tile[y][x] = Wall;
         }
     }
@@ -104,7 +107,7 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
     int dx[] = { 0, 0, -2, 2 };
     int dy[] = { -2, 2, 0, 0 };
 
-    while (!activeList.empty()) {//내가 뭘쳐만든거지?
+    while (!activeList.empty()) {//모든 활성화 리스트가 비워질때까지
         int idx = rand() % activeList.size();
         int curX = activeList[idx].first;
         int curY = activeList[idx].second;
@@ -113,8 +116,8 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
         for (int i = 0; i < 4; i++) {
             int newX = curX + dx[i];
             int newY = curY + dy[i];
-            if (newX > 0 && newX < size - 1 &&
-                newY > 0 && newY < size - 1 &&
+            if (newX > 0 && newX < m_size - 1 &&
+                newY > 0 && newY < m_size - 1 &&
                 !visited[newY][newX]) {
                 validDirections.push_back(i);
             }
@@ -143,14 +146,213 @@ void Board::GenerateGrowingBinaryTree(bool showProcess) {
     }
 }
 //=========================================
+void Board::GenerateRecursiveBacktracking(bool showProcess) {
+    for (int y = 0; y < m_size; y++) {
+        for (int x = 0; x < m_size; x++) {
+            tile[y][x] = Wall;
+        }
+    }
+    if (showProcess) {
+        SetCursorPosition(0, 0);
+        Render();
+    }
+
+    srand(unsigned(time(NULL)));
+
+    bool visited[50][50] = { false };//모두 방문 안했고
+    int startX = 1, startY = 1;//생성 시작지점
+    tile[startY][startX] = Empty;//시작을 비우고
+    visited[startY][startX] = true;// 시작에 방문 표시를 하며
+    vector<pair<int, int>> activeList;//아마 스택처럼 써야하지 않을까? 길찾기인데 뒤로 돌아가야한다는점을 착안해서 ㅇㅇ
+    activeList.push_back({ startX, startY });//넣고
+
+    //4방향 백터
+    int dx[] = { 0, 0, -2, 2 };
+    int dy[] = { -2, 2, 0, 0 };
+
+    while (!activeList.empty()) {
+        int curX = activeList.back().first;
+        int curY = activeList.back().second;
+
+        vector<int> validDirections;
+        for (int i = 0; i < 4; i++) {
+            int newX = curX + dx[i];
+            int newY = curY + dy[i];
+            if (newX > 0 && newX < m_size - 1 &&
+                newY > 0 && newY < m_size - 1 &&
+                !visited[newY][newX]) {
+                validDirections.push_back(i);
+            }
+        }
+        if (!validDirections.empty()) {
+            int dir = validDirections[rand() % validDirections.size()];
+            int newX = curX + dx[dir];
+            int newY = curY + dy[dir];
+
+            int wallX = curX + dx[dir] / 2;
+            int wallY = curY + dy[dir] / 2;
+
+            tile[wallY][wallX] = Empty;
+            tile[newY][newX] = Empty;
+            visited[newY][newX] = true;
+
+            activeList.push_back({ newX, newY });  // 스택에 추가
+
+            if (showProcess) {
+                tile[newY][newX] = Path;
+                SetCursorPosition(0, 0);
+                Render();
+                Sleep(10);
+                tile[newY][newX] = Empty;
+            }
+        }
+        else {
+            int backX = activeList.back().first;
+            int backY = activeList.back().second;
+
+            activeList.pop_back();
+
+            if (showProcess) {
+                tile[backY][backX] = Back;  // 백트래킹 표시
+                SetCursorPosition(0, 0);
+                Render();
+                Sleep(50);
+                tile[backY][backX] = Empty;
+            }
+        }
+    }
+}
+//=========================================
+void Board::GenerateHuntandKill(bool showProcess) {
+    for (int y = 0; y < m_size; y++) {
+        for (int x = 0; x < m_size; x++) {
+            tile[y][x] = Wall;
+        }
+    }
+    
+    if (showProcess) {
+        SetCursorPosition(0, 0);
+        Render();
+    }
+
+    srand(unsigned(time(NULL)));
+
+    bool visited[50][50] = { false };//모두 방문 안했고
+    int startX = 1, startY = 1;//생성 시작지점
+    tile[startY][startX] = Empty;//시작을 비우고
+    visited[startY][startX] = true;// 시작에 방문 표시를 하며
+
+    int curX = startX;
+    int curY = startY;
+
+    //4방향 백터
+    int dx[] = { 0, 0, -2, 2 };
+    int dy[] = { -2, 2, 0, 0 };
+
+    while (true) {
+
+        vector<int> validDirections;
+        for (int i = 0; i < 4; i++) {
+            int newX = curX + dx[i];
+            int newY = curY + dy[i];
+            if (newX > 0 && newX < m_size - 1 &&
+                newY > 0 && newY < m_size - 1 &&
+                !visited[newY][newX]) {
+                validDirections.push_back(i);
+            }
+        }
+        if (!validDirections.empty()) {
+            int dir = validDirections[rand() % validDirections.size()];
+            int newX = curX + dx[dir];
+            int newY = curY + dy[dir];
+
+            int wallX = curX + dx[dir] / 2;
+            int wallY = curY + dy[dir] / 2;
+            
+            tile[wallY][wallX] = Empty;
+
+            assert(newX > 0 && newX < m_size - 1 &&
+                newY > 0 && newY < m_size - 1);
+            
+            tile[newY][newX] = Empty;
+            visited[newY][newX] = true;
+
+            curX = newX;  // 현재 위치 업데이트
+            curY = newY;
+
+            if (showProcess) {
+                tile[newY][newX] = Path;
+                SetCursorPosition(0, 0);
+                Render();
+                tile[newY][newX] = Empty;
+            }
+        }
+        else {
+            bool found = false;
+            //이 전설적인 포문을 봐라 이게 뭔 개판이란말인가!!!
+            for (int y = 1; y < m_size - 1 && !found; y += 2) {
+                if (showProcess) {
+                    //스캔 시각화 
+                    for (int x = 1; x < m_size - 1; x += 2) {
+                        tile[y][x] = Scan;
+                    }
+                    SetCursorPosition(0, 0);
+                    Render();
+                    for (int x = 1; x < m_size - 1; x +=2) {
+                        tile[y][x] = (visited[y][x]) ? Empty : Wall;
+                    }
+                }
+                for (int x = 1; x < m_size - 1 && !found; x += 2) {
+                    
+                    // 방문 안 한 셀 중에서
+                    if (!visited[y][x]) {
+                        // 인접한 방문한 셀이 있는지 체크
+                        for (int i = 0; i < 4; i++) {
+                            int adjX = x + dx[i];
+                            int adjY = y + dy[i];
+
+                            if (adjX > 0 && adjX < m_size - 1 &&
+                                adjY > 0 && adjY < m_size - 1 &&
+                                visited[adjY][adjX]) {
+
+                                int wallX = x + dx[i] / 2;
+                                int wallY = y + dy[i] / 2;
+
+                                tile[wallY][wallX] = Empty;
+                                tile[y][x] = Empty;
+                                visited[y][x] = true;
+
+                                curX = x;  // 새 시작점
+                                curY = y;
+                                found = true;
+
+                                if (showProcess) {
+                                    tile[y][x] = Back;  // Hunt 표시
+                                    SetCursorPosition(0, 0);
+                                    Render();
+                                    tile[y][x] = Empty;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                break;
+            }
+            
+        }
+    }
+}
+//=========================================
 void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
-    if (boardSize % 2 == 0)
-        return;
-    size = boardSize;
-    startX = 1;
-    startY = 1;
-    goalX = size - 2;
-    goalY = size - 2;
+    assert(boardSize % 2&&"보드 사이즈 개똥임 정상화 하셈 ㅇㅇ");
+    m_size = boardSize;
+    m_startX = 1;
+    m_startY = 1;
+    m_goalX = m_size - 2;
+    m_goalY = m_size - 2;
     switch (algorithm) {
     case 1:
         GenerateBinaryTree(showProcess);
@@ -159,24 +361,30 @@ void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
         GenerateGrowingBinaryTree(showProcess);
         break;
     case 3:
-        //"Hunt and Kill" Algorithm 구현하기
+        GenerateRecursiveBacktracking(showProcess);
         break;
+    case 4:
+        GenerateHuntandKill(showProcess);
     }
 }
 //=========================================
 void Board::Render() {
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
-            if (x == startX && y == startY)
+    for (int y = 0; y < m_size; y++) {
+        for (int x = 0; x < m_size; x++) {
+            if (x == m_startX && y == m_startY)
                 cout << "\033[42m  \033[0m";
-            else if (x == goalX && y == goalY)
+            else if (x == m_goalX && y == m_goalY)
                 cout << "\033[41m  \033[0m";
             else if (tile[y][x] == Wall)
                 cout << "\033[47m  \033[0m";
             else if (tile[y][x] == Path)
-				cout << "\033[44m  \033[0m";// Path는 파란색으로 표시
-			else if (tile[y][x] == Loot)
-				cout << "\033[43m  \033[0m";// Loot는 노란색으로 표시
+                cout << "\033[44m  \033[0m";// Path는 파란색으로 표시
+            else if (tile[y][x] == Loot)
+                cout << "\033[43m  \033[0m";// Loot는 노란색으로 표시
+            else if (tile[y][x] == Back)
+                cout << "\033[41m  \033[0m";// Back은 붉은색으로 표시
+            else if (tile[y][x] == Scan)
+                cout << "\033[42m  \033[0m";
             else
                 cout << "\033[40m  \033[0m";
         }
@@ -184,14 +392,14 @@ void Board::Render() {
     }
 }
 //=========================================
-void Board::BasicMazeSearch(int sX, int sY, int gX, int gY) {
-    bool** visited = new bool* [size];//Initialize에서 사이즈 정함 ㅇㅇ
-    pair<int, int>** parent = new pair<int, int>* [size];
+void Board::Breadthfirstsearch(int sX, int sY, int gX, int gY) {
+    bool** visited = new bool* [m_size];//Initialize에서 사이즈 정함 ㅇㅇ
+    pair<int, int>** parent = new pair<int, int>* [m_size];
 
-    for (int i = 0; i < size; i++) {
-        visited[i] = new bool[size]();  // () 붙이면 false로 초기화
-        parent[i] = new pair<int, int>[size];
-        for (int j = 0; j < size; j++) {
+    for (int i = 0; i < m_size; i++) {
+        visited[i] = new bool[m_size]();  // () 붙이면 false로 초기화
+        parent[i] = new pair<int, int>[m_size];
+        for (int j = 0; j < m_size; j++) {
             parent[i][j] = { -1, -1 };
         }
     }
@@ -262,17 +470,18 @@ void Board::BasicMazeSearch(int sX, int sY, int gX, int gY) {
     }
 
     //메모리 해제
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < m_size; i++) {
         delete[] visited[i];
         delete[] parent[i];
     }
     delete[] visited;
     delete[] parent;
 }
-
+//=========================================
 void Board::Algorithm(int choice) {
+    
     switch (choice) {
-    case 1:
+    case 1: {
         cout << "=== 이진 트리 미로 알고리즘 ===" << endl << endl;
 
         cout << "[ 작동 원리 ]" << endl;
@@ -301,7 +510,8 @@ void Board::Algorithm(int choice) {
         cout << "  * 긴 직선 복도가 많이 생성됨" << endl;
         Sleep(6000);
         break;
-    case 2:
+    }
+    case 2: {
         cout << "=== Growing Binary Tree 알고리즘 ===" << endl << endl;
 
         cout << "[ 작동 원리 ]" << endl;
@@ -334,7 +544,50 @@ void Board::Algorithm(int choice) {
         cout << "  * 활성 셀 리스트 관리를 위한 추가 메모리 필요" << endl;
         cout << "  * 생성 속도가 상대적으로 느림 (O(n log n))" << endl;
         cout << "  * 단순한 생성 과정으로써 구조가 단순함" << endl;
+
         Sleep(6000);
         break;
+    }
+    case 3: {
+        cout << "=== Recursive Backtracking 알고리즘 ===" << endl << endl;
+
+        cout << "[ 작동 원리 ]" << endl;
+        cout << "깊이 우선 탐색(DFS) 방식으로 미로를 생성합니다:" << endl;
+        cout << "  * 한 방향으로 끝까지 파고들어가며 길을 만듦" << endl;
+        cout << "  * 막다른 곳에 도달하면 이전 위치로 되돌아감(백트래킹)" << endl;
+        cout << "  * 모든 경로를 탐색할 때까지 반복" << endl << endl;
+        cout << "[ 알고리즘 단계 ]" << endl;
+        cout << "1. 시작 셀을 선택하고 스택에 추가" << endl;
+        cout << "2. 스택이 비어있지 않는 동안:" << endl;
+        cout << "   * 스택의 최상단 셀을 확인 (pop하지 않음)" << endl;
+        cout << "   * 현재 셀의 미방문 이웃을 찾음" << endl;
+        cout << "   * 이웃이 있으면:" << endl;
+        cout << "     - 랜덤하게 이웃 선택" << endl;
+        cout << "     - 현재 셀과 이웃 사이의 벽 제거" << endl;
+        cout << "     - 이웃을 스택에 추가 (push)" << endl;
+        cout << "   * 이웃이 없으면:" << endl;
+        cout << "     - 스택에서 현재 셀 제거 (pop)" << endl;
+        cout << "     - 이전 셀로 백트래킹" << endl << endl;
+
+        cout << "[ 특징 ]" << endl << endl;
+
+        cout << "장점:" << endl;
+        cout << "  * 구현이 직관적이고 이해하기 쉬움" << endl;
+        cout << "  * 항상 완벽한 미로 생성 (모든 셀 연결됨)" << endl;
+        cout << "  * 긴 복도와 구불구불한 경로가 많음" << endl;
+        cout << "  * 메모리 효율적 (스택만 사용)" << endl << endl;
+        cout << "단점:" << endl;
+        cout << "  * 한 방향으로 편향된 경로 생성" << endl;
+        cout << "  * 막다른 골목이 많이 생성됨" << endl;
+        cout << "  * 생성 과정이 예측 가능함 (패턴 반복)" << endl;
+        cout << "  * 시작점에서 먼 곳일수록 복잡도 증가" << endl;
+
+        Sleep(6000);
+        break;
+    }
+    case 4:
+    {
+        cout << "개똥" << endl;
+    }
     }
 }
