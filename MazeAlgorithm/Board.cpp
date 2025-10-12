@@ -5,7 +5,7 @@
 #include <utility>
 #include <assert.h>
 
-//맴버 변수랑 로컬 변수 구분좀 되게 해두기
+using namespace std;
 void SetCursorPosition(int x, int y) {
     COORD coord;
     coord.X = x;
@@ -19,20 +19,20 @@ void HideCursor() {
     cursorInfo.bVisible = FALSE;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
-//=========================================
+//=====================A* 노드====================
 Board::Node::Node(int x, int y, int g, int h, Node* parent)
     : m_x(x), m_y(y), m_g(g), m_h(h), m_parent(parent) {
     m_f = g + h;
-}
+}//A*
 //=========================================
 bool Board::Node::operator>(const Node& other) const {
     return m_f > other.m_f;
-}
-//=========================================
+}//A*
+//====================맨해탄 거리=====================
 int Board::CalculateH(int x1, int y1, int x2, int y2) {
     return abs(x1 - x2) + abs(y1 - y2);
-}
-//=========================================
+}//A*
+//====================벽 검사=====================
 bool Board::IsValid(int x, int y) {
 	if (x < 0 || x >= m_size || y < 0 || y >= m_size)//범위 벗어남
 		return false;//false 반환
@@ -40,7 +40,7 @@ bool Board::IsValid(int x, int y) {
 		return false;// false 반환
 	return true;// 유효한 위치
 }
-//=========================================
+//===================미로 생성 알고리즘 파트======================
 void Board::GenerateBinaryTree(bool showProcess) {
     //맵 초기화 x y가 짝수일때 wall로 지정 else 빈칸
     for (int y = 0; y < m_size; y++) {
@@ -345,7 +345,7 @@ void Board::GenerateHuntandKill(bool showProcess) {
         }
     }
 }
-//=========================================
+//=====================초기화====================
 void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
     assert(boardSize % 2&&"보드 사이즈 개똥임 정상화 하셈 ㅇㅇ");
     m_size = boardSize;
@@ -368,6 +368,54 @@ void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
     }
 }
 //=========================================
+void Board::PathFindingChoose(int mapsize) {
+    int choice;
+    cout << "====================================\n";
+    cout << "     Maze Finding Algorithms     \n";
+    cout << "====================================\n\n";
+    cout << "1. Breadthfirstsearch(BFS) Algorithm\n";
+    cout << "2. Depthfirstsearch(DFS) Algorithm\n";
+    cout << "3. Dijkstra(Still Dev) Algorithm\n";
+    cout << "4. Astar(Still Dev) Algorithm\n";
+    cout << "0. Exit\n\n";
+    cout << "Select algorithm (0-4): ";
+    cin >> choice;
+    switch (choice)
+    {
+    case 0: {
+        cout << "Goodbye!\n";
+    }
+    case 1:
+        system("cls");
+        Algorithm(choice+4);
+        Sleep(6000);
+        system("cls");
+        Breadthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
+        break;
+    case 2:
+        system("cls");
+        Algorithm(choice+4);
+        Sleep(6000);
+        system("cls");
+        Depthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
+        break;
+    case 3:
+        system("cls");
+        Algorithm(choice+4);
+        Sleep(6000);
+        system("cls");
+        cout << "Still Dev\n";
+        break;
+    case 4:
+        system("cls");
+        Algorithm(choice+4);
+        Sleep(6000);
+        system("cls");
+        cout << "Still Dev\n";
+        break;
+    }
+}
+//=====================랜더링====================
 void Board::Render() {
     for (int y = 0; y < m_size; y++) {
         for (int x = 0; x < m_size; x++) {
@@ -384,14 +432,14 @@ void Board::Render() {
             else if (tile[y][x] == Back)
                 cout << "\033[41m  \033[0m";// Back은 붉은색으로 표시
             else if (tile[y][x] == Scan)
-                cout << "\033[42m  \033[0m";
+                cout << "\033[42m  \033[0m";// Scan은 초록색으로 표시
             else
                 cout << "\033[40m  \033[0m";
         }
         cout << endl;
     }
 }
-//=========================================
+//====================미로 탐색=====================
 void Board::Breadthfirstsearch(int sX, int sY, int gX, int gY) {
     bool** visited = new bool* [m_size];//Initialize에서 사이즈 정함 ㅇㅇ
     pair<int, int>** parent = new pair<int, int>* [m_size];
@@ -462,10 +510,15 @@ void Board::Breadthfirstsearch(int sX, int sY, int gX, int gY) {
             SetCursorPosition(0, 0);
             Render();
         }
-
+        system("cls");
+        SetCursorPosition(0, 0);
+        Render();
         cout << "\n경로를 찾았습니다!" << endl;
     }
     else {
+        system("cls");
+        SetCursorPosition(0, 0);
+        Render();
         cout << "\n경로를 찾을 수 없습니다!" << endl;
     }
 
@@ -478,6 +531,79 @@ void Board::Breadthfirstsearch(int sX, int sY, int gX, int gY) {
     delete[] parent;
 }
 //=========================================
+void Board::Depthfirstsearch(int sX, int sY, int gX, int gY) {
+    bool found = false;
+    bool visited[50][50] = { false };
+
+    visited[sY][sX] = true;
+    vector<pair<int, int>> Stack;
+    Stack.push_back({ sX, sY });
+
+    int dx[] = { 0, 0, -1, 1 };
+    int dy[] = { -1, 1, 0, 0 };
+
+    while (!Stack.empty() && !found) {
+        int curX = Stack.back().first;
+        int curY = Stack.back().second;
+
+        if (curX == gX && curY == gY) {
+            found = true;
+            tile[curY][curX] = Path;  // 목적지도 표시
+            break;
+        }
+
+        vector<int> validDirections;
+        for (int i = 0; i < 4; i++) {
+            int newX = curX + dx[i];
+            int newY = curY + dy[i];
+
+            if (IsValid(newX, newY) && !visited[newY][newX]) {
+                validDirections.push_back(i);
+            }
+        }
+
+        if (!validDirections.empty()) {
+            int dir = validDirections[0];
+            int newX = curX + dx[dir];
+            int newY = curY + dy[dir];
+
+            visited[newY][newX] = true;
+            Stack.push_back({ newX, newY });
+
+            tile[newY][newX] = Path;  // 경로 표시
+            SetCursorPosition(0, 0);
+            Render();
+            Sleep(10);
+        }
+        else {
+            int backX = Stack.back().first;
+            int backY = Stack.back().second;
+            Stack.pop_back();
+
+            // 시작점/목적지가 아니면 백트래킹 표시
+            if (!(backX == sX && backY == sY) && !(backX == gX && backY == gY)) {
+                tile[backY][backX] = Back;
+                SetCursorPosition(0, 0);
+                Render();
+                Sleep(50);
+            }
+        }
+    }
+
+    if (found) {
+        system("cls");
+        SetCursorPosition(0, 0);
+        Render();
+        cout << "\n경로를 찾았습니다!" << endl;
+    }
+    else {
+        system("cls");
+        SetCursorPosition(0, 0);
+        Render();
+        cout << "\n경로를 찾을 수 없습니다!" << endl;
+    }
+}
+//====================알고리즘 설명=====================
 void Board::Algorithm(int choice) {
     
     switch (choice) {
@@ -587,7 +713,116 @@ void Board::Algorithm(int choice) {
     }
     case 4:
     {
-        cout << "개똥" << endl;
+        cout << "=== Hunt and Kill 알고리즘 ===" << endl << endl;
+        cout << "[ 작동 원리 ]" << endl;
+        cout << "두 가지 모드를 번갈아 사용하여 미로를 생성합니다:" << endl;
+        cout << "  * Hunt 모드: 방문한 셀에 인접한 미방문 셀 탐색" << endl;
+        cout << "  * Kill 모드: 발견한 셀에서 랜덤 워크 시작" << endl;
+        cout << "  * 모든 셀을 방문할 때까지 반복" << endl << endl;
+        cout << "[ 알고리즘 단계 ]" << endl;
+        cout << "1. 시작 셀을 선택하고 방문 표시" << endl;
+        cout << "2. Kill 모드 - 랜덤 워크 수행:" << endl;
+        cout << "   * 현재 셀의 미방문 이웃을 찾음" << endl;
+        cout << "   * 이웃이 있으면:" << endl;
+        cout << "     - 랜덤하게 이웃 선택" << endl;
+        cout << "     - 현재 셀과 이웃 사이의 벽 제거" << endl;
+        cout << "     - 이웃을 현재 셀로 설정하고 반복" << endl;
+        cout << "   * 이웃이 없으면 Hunt 모드로 전환" << endl;
+        cout << "3. Hunt 모드 - 새로운 시작점 탐색:" << endl;
+        cout << "   * 미로를 순차적으로 스캔" << endl;
+        cout << "   * 미방문 셀 중 방문한 셀과 인접한 셀 발견" << endl;
+        cout << "   * 발견한 셀과 인접 셀 사이의 벽 제거" << endl;
+        cout << "   * Kill 모드로 전환하여 다시 랜덤 워크 시작" << endl << endl;
+        cout << "[ 특징 ]" << endl << endl;
+        cout << "장점:" << endl;
+        cout << "  * 긴 복도와 구불구불한 경로 생성" << endl;
+        cout << "  * 막다른 골목이 적고 흐름이 자연스러움" << endl;
+        cout << "  * 추가 메모리 불필요 (스택이나 큐 불필요)" << endl;
+        cout << "  * 항상 완벽한 미로 생성 (모든 셀 연결됨)" << endl << endl;
+        cout << "단점:" << endl;
+        cout << "  * Hunt 단계에서 전체 미로 스캔 필요" << endl;
+        cout << "  * 큰 미로에서 성능 저하 가능 (O(n²))" << endl;
+        cout << "  * 구현이 다소 복잡함" << endl;
+        cout << "  * 생성 속도가 다른 알고리즘보다 느림" << endl;
+        Sleep(6000);
+        break;
+    }
+    case 5: {
+        cout << "=== BFS (너비 우선 탐색) 알고리즘 ===" << endl << endl;
+
+        cout << "[ 작동 원리 ]" << endl;
+        cout << "시작점에서 가까운 곳부터 순차적으로 탐색합니다:" << endl;
+        cout << "  * 시작점에서 1칸 거리 → 2칸 거리 → 3칸 거리 순으로 탐색" << endl;
+        cout << "  * 큐(Queue)를 사용하여 탐색 순서 관리" << endl;
+        cout << "  * 최단 경로를 보장하는 알고리즘" << endl << endl;
+
+        cout << "[ 알고리즘 단계 ]" << endl;
+        cout << "1. 시작점을 큐에 넣고 방문 표시" << endl;
+        cout << "2. 큐에서 위치를 하나 꺼냄 (선입선출)" << endl;
+        cout << "3. 현재 위치가 목적지인지 확인:" << endl;
+        cout << "   * 목적지라면 탐색 종료" << endl;
+        cout << "   * 아니라면 다음 단계 진행" << endl;
+        cout << "4. 현재 위치의 상하좌우 4방향 탐색:" << endl;
+        cout << "   * 유효한 위치인지 확인 (범위 내, 벽 아님)" << endl;
+        cout << "   * 미방문 위치라면:" << endl;
+        cout << "     - 방문 표시" << endl;
+        cout << "     - 부모 노드 기록 (역추적용)" << endl;
+        cout << "     - 큐에 추가" << endl;
+        cout << "5. 큐가 빌 때까지 2~4단계 반복" << endl;
+        cout << "6. 목적지 도달 시 부모 노드를 따라 역추적하여 경로 표시" << endl << endl;
+
+        cout << "[ 특징 ]" << endl << endl;
+        cout << "장점:" << endl;
+        cout << "  * 항상 최단 경로를 찾음 (가중치 없는 그래프)" << endl;
+        cout << "  * 구현이 비교적 간단함" << endl;
+        cout << "  * 모든 경로를 공평하게 탐색" << endl;
+        cout << "  * 경로 존재 여부를 확실히 판단 가능" << endl << endl;
+        cout << "단점:" << endl;
+        cout << "  * 메모리 사용량이 많음 (큐, 방문 배열, 부모 배열)" << endl;
+        cout << "  * 목적지가 멀리 있으면 불필요한 탐색 증가" << endl;
+        cout << "  * 시간 복잡도 O(V+E) - 모든 정점과 간선 탐색" << endl;
+        cout << "  * 가중치가 있는 그래프에서는 최단 경로 보장 안 됨" << endl;
+
+        
+        break;
+    }
+    case 6: {
+        cout << "=== DFS (깊이 우선 탐색) 알고리즘 ===" << endl << endl;
+
+        cout << "[ 작동 원리 ]" << endl;
+        cout << "한 방향으로 끝까지 탐색한 후 되돌아와 다른 경로를 탐색합니다:" << endl;
+        cout << "  * 막다른 길에 도달할 때까지 계속 진행" << endl;
+        cout << "  * 스택(Stack) 또는 재귀를 사용하여 탐색" << endl;
+        cout << "  * 백트래킹을 통해 다른 경로 탐색" << endl << endl;
+
+        cout << "[ 알고리즘 단계 ]" << endl;
+        cout << "1. 시작점을 스택에 넣고 방문 표시" << endl;
+        cout << "2. 스택에서 위치를 하나 꺼냄 (후입선출)" << endl;
+        cout << "3. 현재 위치가 목적지인지 확인:" << endl;
+        cout << "   * 목적지라면 탐색 종료" << endl;
+        cout << "   * 아니라면 다음 단계 진행" << endl;
+        cout << "4. 현재 위치의 상하좌우 4방향 탐색:" << endl;
+        cout << "   * 유효한 위치인지 확인 (범위 내, 벽 아님)" << endl;
+        cout << "   * 미방문 위치라면:" << endl;
+        cout << "     - 방문 표시" << endl;
+        cout << "     - 부모 노드 기록 (역추적용)" << endl;
+        cout << "     - 스택에 추가" << endl;
+        cout << "5. 스택이 빌 때까지 2~4단계 반복" << endl;
+        cout << "6. 목적지 도달 시 부모 노드를 따라 역추적하여 경로 표시" << endl << endl;
+
+        cout << "[ 특징 ]" << endl << endl;
+        cout << "장점:" << endl;
+        cout << "  * 메모리 사용량이 적음 (현재 경로만 저장)" << endl;
+        cout << "  * 구현이 간단함 (재귀 사용 시 더욱 간단)" << endl;
+        cout << "  * 목적지가 깊은 곳에 있을 때 빠르게 발견 가능" << endl;
+        cout << "  * 백트래킹 알고리즘에 적합" << endl << endl;
+        cout << "단점:" << endl;
+        cout << "  * 최단 경로를 보장하지 않음" << endl;
+        cout << "  * 무한 루프에 빠질 위험 (순환 그래프)" << endl;
+        cout << "  * 목적지가 얕은 곳에 있어도 깊이 탐색 먼저 진행" << endl;
+        cout << "  * 시간 복잡도 O(V+E) - 최악의 경우 모든 정점 방문" << endl;
+
+        break;
     }
     }
 }

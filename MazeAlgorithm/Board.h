@@ -40,7 +40,9 @@ private:
 
 public:
     void Initialize(int boardSize, int algorithm, bool showProcess = false);
+    void PathFindingChoose(int mapsize);
     void Render();
     void Breadthfirstsearch(int sX, int sY, int gX, int gY);
+    void Depthfirstsearch(int sX, int sY, int gX, int gY);
     void Algorithm(int choice);
 };

@@ -36,18 +36,17 @@ int main() {
     board.Initialize(mapsize, choice, true);
     SetCursorPosition(0, 0);
     board.Render();
-    //미로 탐색 함수가 추가되는 대로 그냥 여기다가 선택하게 추가하기
-    board.Breadthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
-	cout << "\n1. Restart\n0. Exit\n";
+    system("cls");
+    board.PathFindingChoose(mapsize);
+    cout << "\n1. Restart\n0. Exit\n";
     cin >> choice;
     switch (choice)
     {
-	case 0:
-		cout << "Goodbye!\n";
-		break;
-	case 1:
-		system("cls");
-		main();
+    case 0:
+        cout << "Goodbye!\n";
+        return 0;
+    case 1:
+        system("cls");
+        main();
     }
-    return 0;
 }
