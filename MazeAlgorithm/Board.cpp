@@ -6,6 +6,7 @@
 #include <assert.h>
 
 using namespace std;
+
 void SetCursorPosition(int x, int y) {
     COORD coord;
     coord.X = x;
@@ -345,6 +346,63 @@ void Board::GenerateHuntandKill(bool showProcess) {
         }
     }
 }
+//=========================================
+void Board::GenerateCellularAutomata(bool showProcess) {
+	//맵 초기화 x y가 짝수일때 wall로 지정 else 빈칸
+	for (int y = 0; y < m_size; y++) {
+		for (int x = 0; x < m_size; x++) {
+            tile[y][x] = (rand() % 100 < 45) ? Wall : Empty; // 45% 확률로 벽 생성
+		}
+	}
+	for (int y = 0; y < m_size; y++) {
+		for (int x = 0; x < m_size; x++) {
+			if (y == 0 || y == m_size - 1 || x == 0 || x == m_size - 1) {
+				tile[y][x] = Wall; // 가장자리 벽 설정
+			}
+		}
+	}
+	if (showProcess) {
+		SetCursorPosition(0, 0);
+		Render();
+		Sleep(500);
+	}
+	srand(unsigned(time(NULL)));
+	//smoothmap
+	for (int iteration = 0; iteration < 10; iteration++) { //5번 반복
+		TileType newTile[50][50];
+		for (int y = 1; y < m_size - 1; y++) {
+			for (int x = 1; x < m_size - 1; x++) {
+				int wallCount = 0;
+				//주변 8칸 검사
+				for (int dy = -1; dy <= 1; dy++) {
+					for (int dx = -1; dx <= 1; dx++) {
+						if (dx == 0 && dy == 0) continue;
+						if (tile[y + dy][x + dx] == Wall)
+							wallCount++;
+					}
+				}
+				//규칙 적용
+				if (tile[y][x] == Wall) {
+					newTile[y][x] = (wallCount >= 4) ? Wall : Empty;
+				}
+				else {
+					newTile[y][x] = (wallCount >= 5) ? Wall : Empty;
+				}
+			}
+		}
+		//업데이트
+		for (int y = 1; y < m_size - 1; y++) {
+			for (int x = 1; x < m_size - 1; x++) {
+				tile[y][x] = newTile[y][x];
+			}
+		}
+		if (showProcess) {
+			SetCursorPosition(0, 0);
+			Render();
+			Sleep(200);
+		}
+	}
+}
 //=====================초기화====================
 void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
     assert(boardSize % 2&&"보드 사이즈 개똥임 정상화 하셈 ㅇㅇ");
@@ -365,18 +423,44 @@ void Board::Initialize(int boardSize, int algorithm, bool showProcess) {
         break;
     case 4:
         GenerateHuntandKill(showProcess);
+        break;
+    case 5:
+        GenerateCellularAutomata(showProcess);
+		break;
+	case 6:
+        for (int y = 0; y < m_size; y++) {
+            for (int x = 0; x < m_size; x++) {
+                if (y == 0 || y == m_size - 1 || x == 0 || x == m_size - 1) {
+                    tile[y][x] = Wall; // 가장자리 벽 설정
+                }
+            }
+        }
+        /**
+		for (int y = 10; y < m_size - 1; y++) {
+            int x = 20;
+            tile[y][x] = Wall;
+		}
+        for (int x = 10; x < m_size - 10; x++) {
+            int y = 10;
+            tile[y][x] = Wall;
+        }
+        */
+		break;
+    case 7:
+        break;
     }
 }
 //=========================================
 void Board::PathFindingChoose(int mapsize) {
     int choice;
+    int curAlgorithmCount = 7;
     cout << "====================================\n";
     cout << "     Maze Finding Algorithms     \n";
     cout << "====================================\n\n";
     cout << "1. Breadthfirstsearch(BFS) Algorithm\n";
     cout << "2. Depthfirstsearch(DFS) Algorithm\n";
     cout << "3. Dijkstra(Still Dev) Algorithm\n";
-    cout << "4. Astar(Still Dev) Algorithm\n";
+    cout << "4. Astar Algorithm\n";
     cout << "0. Exit\n\n";
     cout << "Select algorithm (0-4): ";
     cin >> choice;
@@ -384,34 +468,35 @@ void Board::PathFindingChoose(int mapsize) {
     {
     case 0: {
         cout << "Goodbye!\n";
+        break;
     }
     case 1:
         system("cls");
-        Algorithm(choice+4);
+        Algorithm(choice+ curAlgorithmCount);
         Sleep(6000);
         system("cls");
         Breadthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
         break;
     case 2:
         system("cls");
-        Algorithm(choice+4);
+        Algorithm(choice+ curAlgorithmCount);
         Sleep(6000);
         system("cls");
         Depthfirstsearch(1, 1, mapsize - 2, mapsize - 2);
         break;
     case 3:
         system("cls");
-        Algorithm(choice+4);
+        Algorithm(choice+ curAlgorithmCount);
+        cout << "Still Dev\n";
         Sleep(6000);
         system("cls");
-        cout << "Still Dev\n";
         break;
     case 4:
         system("cls");
-        Algorithm(choice+4);
+        Algorithm(choice+ curAlgorithmCount);
+        AStarsearch(1, 1, mapsize - 2, mapsize - 2);
         Sleep(6000);
         system("cls");
-        cout << "Still Dev\n";
         break;
     }
 }
@@ -573,7 +658,6 @@ void Board::Depthfirstsearch(int sX, int sY, int gX, int gY) {
             tile[newY][newX] = Path;  // 경로 표시
             SetCursorPosition(0, 0);
             Render();
-            Sleep(10);
         }
         else {
             int backX = Stack.back().first;
@@ -585,7 +669,6 @@ void Board::Depthfirstsearch(int sX, int sY, int gX, int gY) {
                 tile[backY][backX] = Back;
                 SetCursorPosition(0, 0);
                 Render();
-                Sleep(50);
             }
         }
     }
@@ -603,9 +686,14 @@ void Board::Depthfirstsearch(int sX, int sY, int gX, int gY) {
         cout << "\n경로를 찾을 수 없습니다!" << endl;
     }
 }
+//=========================================
+void Board::AStarsearch(int sX, int sY, int gX, int gY) {
+    bool found = false;
+	bool visited[50][50] = { false };
+}
 //====================알고리즘 설명=====================
 void Board::Algorithm(int choice) {
-    
+    int ex_timer = 10;
     switch (choice) {
     case 1: {
         cout << "=== 이진 트리 미로 알고리즘 ===" << endl << endl;
@@ -634,7 +722,7 @@ void Board::Algorithm(int choice) {
         cout << "  * 북동쪽 코너가 항상 막다른 골목이 됨" << endl;
         cout << "  * 미로가 너무 단순하고 예측 가능함" << endl;
         cout << "  * 긴 직선 복도가 많이 생성됨" << endl;
-        Sleep(6000);
+        Sleep(ex_timer);
         break;
     }
     case 2: {
@@ -671,7 +759,7 @@ void Board::Algorithm(int choice) {
         cout << "  * 생성 속도가 상대적으로 느림 (O(n log n))" << endl;
         cout << "  * 단순한 생성 과정으로써 구조가 단순함" << endl;
 
-        Sleep(6000);
+        Sleep(ex_timer);
         break;
     }
     case 3: {
@@ -708,7 +796,7 @@ void Board::Algorithm(int choice) {
         cout << "  * 생성 과정이 예측 가능함 (패턴 반복)" << endl;
         cout << "  * 시작점에서 먼 곳일수록 복잡도 증가" << endl;
 
-        Sleep(6000);
+        Sleep(ex_timer);
         break;
     }
     case 4:
@@ -744,10 +832,48 @@ void Board::Algorithm(int choice) {
         cout << "  * 큰 미로에서 성능 저하 가능 (O(n²))" << endl;
         cout << "  * 구현이 다소 복잡함" << endl;
         cout << "  * 생성 속도가 다른 알고리즘보다 느림" << endl;
-        Sleep(6000);
+        Sleep(ex_timer);
         break;
     }
     case 5: {
+        cout << "=== Cellular Automata(세포자동자) 알고리즘 ===" << endl << endl;
+		cout << "[ 작동 원리 ]" << endl;
+		cout << "무작위로 초기화된 그리드에서 시작하여 규칙에 따라 셀 상태를 반복적으로 업데이트합니다:" << endl;
+		cout << "  * 각 셀은 벽 또는 빈 공간 상태를 가짐" << endl;
+		cout << "  * 주변 셀의 상태에 따라 현재 셀의 상태 결정" << endl;
+		cout << "  * 여러 세대에 걸쳐 그리드가 진화하며 미로 형태 생성" << endl << endl;
+		cout << "[ 알고리즘 단계 ]" << endl;
+		cout << "1. 그리드를 무작위로 초기화 (벽과 빈 공간 혼합)" << endl;
+		cout << "2. 여러 세대에 걸쳐 다음 규칙 적용:" << endl;
+		cout << "   * 각 셀에 대해 주변 8칸의 벽 개수 계산" << endl;
+		cout << "   * 벽 셀인 경우:" << endl;
+		cout << "     - 주변 벽이 4개 이상이면 벽 유지" << endl;
+		cout << "     - 그렇지 않으면 빈 공간으로 변경" << endl;
+		cout << "   * 빈 공간 셀인 경우:" << endl;
+		cout << "     - 주변 벽이 5개 이상이면 벽으로 변경" << endl;
+		cout << "     - 그렇지 않으면 빈 공간 유지" << endl << endl;
+		cout << "[ 특징 ]" << endl << endl;
+		cout << "장점:" << endl;
+		cout << "  * 자연스럽고 유기적인 미로 형태 생성" << endl;
+		cout << "  * 구현이 비교적 간단함" << endl;
+		cout << "  * 다양한 패턴과 구조 생성 가능" << endl;
+		cout << "  * 매개변수 조정을 통해 미로 특성 변경 가능" << endl << endl;
+		cout << "단점:" << endl;
+		cout << "  * 초기 무작위 상태에 민감함" << endl;
+		cout << "나는 그냥 만들고 싶게 생겨서 만든거임" << endl;
+		Sleep(ex_timer);
+		break;
+
+    }
+    case 6: {
+		cout << "===주인장의 Blank test world===" << endl << endl;
+        break;
+    }
+    case 7: {
+		cout << "===주인장의 Custom Maze===" << endl << endl;
+		break;
+    }
+    case 8: {
         cout << "=== BFS (너비 우선 탐색) 알고리즘 ===" << endl << endl;
 
         cout << "[ 작동 원리 ]" << endl;
@@ -782,11 +908,10 @@ void Board::Algorithm(int choice) {
         cout << "  * 목적지가 멀리 있으면 불필요한 탐색 증가" << endl;
         cout << "  * 시간 복잡도 O(V+E) - 모든 정점과 간선 탐색" << endl;
         cout << "  * 가중치가 있는 그래프에서는 최단 경로 보장 안 됨" << endl;
-
-        
+        Sleep(ex_timer);
         break;
     }
-    case 6: {
+    case 9: {
         cout << "=== DFS (깊이 우선 탐색) 알고리즘 ===" << endl << endl;
 
         cout << "[ 작동 원리 ]" << endl;
@@ -821,7 +946,7 @@ void Board::Algorithm(int choice) {
         cout << "  * 무한 루프에 빠질 위험 (순환 그래프)" << endl;
         cout << "  * 목적지가 얕은 곳에 있어도 깊이 탐색 먼저 진행" << endl;
         cout << "  * 시간 복잡도 O(V+E) - 최악의 경우 모든 정점 방문" << endl;
-
+        Sleep(ex_timer);
         break;
     }
     }

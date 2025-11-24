@@ -12,8 +12,10 @@ int main() {
     cout << "2. Growing Binary Tree Algorithm\n";
     cout << "3. Recursive Backtracking Algorithm\n";
     cout << "4. Hunt and Kill Algorithm\n";
+    cout << "5. CellularAutomata Algorithm(not maze just Solo practice)\n";
+	cout << "6. Blank Map(Just for Test when PathFinding Algorithm)\n";
     cout << "0. Exit\n\n";
-    cout << "Select algorithm (0-4): ";
+    cout << "Select algorithm (0-6): ";
     cin >> choice;
     
     if (choice == 0) {
@@ -21,7 +23,7 @@ int main() {
         return 0;
     }
 
-    if (choice < 1 || choice > 4) {
+    if (choice < 1 || choice > 6) {
         cout << "Invalid choice!\n";
         return 0;
     }

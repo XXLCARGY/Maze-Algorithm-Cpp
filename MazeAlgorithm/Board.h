@@ -37,6 +37,7 @@ private:
     void GenerateGrowingBinaryTree(bool showProcess);
     void GenerateRecursiveBacktracking(bool showProcess);
     void GenerateHuntandKill(bool showProcess);
+	void GenerateCellularAutomata(bool showProcess);
 
 public:
     void Initialize(int boardSize, int algorithm, bool showProcess = false);
@@ -44,5 +45,6 @@ public:
     void Render();
     void Breadthfirstsearch(int sX, int sY, int gX, int gY);
     void Depthfirstsearch(int sX, int sY, int gX, int gY);
+	void AStarsearch(int sX, int sY, int gX, int gY);
     void Algorithm(int choice);
 };
